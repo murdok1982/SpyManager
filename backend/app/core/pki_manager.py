@@ -84,20 +84,28 @@ class PKIManager:
         with open(self.ca_cert_path, "wb") as f:
             f.write(cert.public_bytes(serialization.Encoding.PEM))
 
-    def issue_certificate(self, common_name: str, entity_id: str):
-        """Emite un certificado firmado por la CA para un usuario o dispositivo."""
+    def issue_certificate_from_csr(self, csr_pem: bytes, entity_id: str):
+        """Emite un certificado firmado por la CA a partir de un CSR (Certificate Signing Request).
+        Garantiza que la clave privada nunca abandone el dispositivo del usuario (Zero Trust).
+        """
+        csr = x509.load_pem_x509_csr(csr_pem)
+        
+        if not csr.is_signature_valid:
+            raise ValueError("CSR signature is invalid")
+
         with open(self.ca_key_path, "rb") as f:
             ca_private_key = serialization.load_pem_private_key(f.read(), password=None)
         
         with open(self.ca_cert_path, "rb") as f:
             ca_cert = x509.load_pem_x509_certificate(f.read())
 
-        entity_key = ed25519.Ed25519PrivateKey.generate()
-        
+        # Extraer el Common Name del CSR si se desea, o forzar uno.
+        # Aquí forzamos que el sujeto incluya el entity_id proporcionado y los datos de la org
         subject = x509.Name([
             x509.NameAttribute(NameOID.COUNTRY_NAME, "ES"),
             x509.NameAttribute(NameOID.ORGANIZATION_NAME, "IMC-Sovereign"),
-            x509.NameAttribute(NameOID.COMMON_NAME, common_name),
+            # Reutilizamos el CN del CSR si existe
+            x509.NameAttribute(NameOID.COMMON_NAME, csr.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value),
             x509.NameAttribute(NameOID.USER_ID, entity_id),
         ])
 
@@ -106,7 +114,7 @@ class PKIManager:
         ).issuer_name(
             ca_cert.subject
         ).public_key(
-            entity_key.public_key()
+            csr.public_key()
         ).serial_number(
             x509.random_serial_number()
         ).not_valid_before(
@@ -115,11 +123,6 @@ class PKIManager:
             datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=365)
         ).sign(ca_private_key, hashes.SHA256())
 
-        key_bytes = entity_key.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.PKCS8,
-            encryption_algorithm=serialization.NoEncryption()
-        )
         cert_bytes = cert.public_bytes(serialization.Encoding.PEM)
         
-        return key_bytes, cert_bytes
+        return cert_bytes

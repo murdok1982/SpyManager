@@ -8,6 +8,7 @@ import numpy as np
 from typing import List, Dict
 import os
 import json
+import asyncio
 
 class AICompartmentService:
     """
@@ -28,13 +29,17 @@ class AICompartmentService:
                 return json.load(f)
         return {}
 
-    def _save_store(self):
-        with open(self.store_path, "w") as f:
-            json.dump(self.vector_store, f)
+    async def _save_store_async(self):
+        """Versión asincrónica para no bloquear el volcado a disco."""
+        def write_sync():
+            with open(self.store_path, "w") as f:
+                json.dump(self.vector_store, f)
+        await asyncio.to_thread(write_sync)
 
-    def ingest_intel(self, case_id: str, package_id: str, content: str):
-        """Genera embedding y lo guarda en el compartimento del caso."""
-        embedding = self.model.encode(content)
+    async def ingest_intel(self, case_id: str, package_id: str, content: str):
+        """Genera embedding y lo guarda en el compartimento del caso (Asíncrono)."""
+        # Delegar la tarea intensiva del modelo a un worker thread
+        embedding = await asyncio.to_thread(self.model.encode, content)
         
         if case_id not in self.vector_store:
             self.vector_store[case_id] = []
@@ -43,23 +48,29 @@ class AICompartmentService:
             "id": package_id,
             "vector": embedding.tolist()
         })
-        self._save_store()
+        # Disparar tarea en background para no retrasar la respuesta, 
+        # o delegarlo de forma segura
+        asyncio.create_task(self._save_store_async())
 
-    def search_similar(self, case_id: str, query: str, limit: int = 5) -> List[str]:
-        """Busca información relacionada ÚNICAMENTE dentro del compartimento del caso."""
+    async def search_similar(self, case_id: str, query: str, limit: int = 5) -> List[str]:
+        """Busca información relacionada ÚNICAMENTE dentro del compartimento del caso (Asíncrono)."""
         if case_id not in self.vector_store:
             return []
             
-        query_vec = self.model.encode(query)
+        # Delegar a worker thread
+        query_vec = await asyncio.to_thread(self.model.encode, query)
         
-        results = []
-        for item in self.vector_store[case_id]:
-            sim = self.cosine_similarity(query_vec, np.array(item["vector"]))
-            results.append((item["id"], sim))
+        # Opcionalmente, delegar el bucle pesado a un thread si vector_store es inmenso
+        def compute_similarities():
+            results = []
+            for item in self.vector_store[case_id]:
+                sim = self.cosine_similarity(query_vec, np.array(item["vector"]))
+                results.append((item["id"], sim))
+            results.sort(key=lambda x: x[1], reverse=True)
+            return results
             
-        # Ordenar por similitud
-        results.sort(key=lambda x: x[1], reverse=True)
-        return [id for id, sim in results[:limit]]
+        sorted_results = await asyncio.to_thread(compute_similarities)
+        return [id for id, sim in sorted_results[:limit]]
 
     @staticmethod
     def cosine_similarity(a, b):

@@ -19,8 +19,10 @@ class AuditEntry(BaseModel):
     previous_hash: str
     
     def compute_hash(self) -> str:
-        data = self.model_dump_json().encode()
-        return hashlib.sha256(data).hexdigest()
+        # Serialización canónica y ordenada (RFC 8785 aproximación)
+        dumped_dict = self.model_dump(mode='json')
+        canonical_json = json.dumps(dumped_dict, sort_keys=True, separators=(',', ':')).encode('utf-8')
+        return hashlib.sha256(canonical_json).hexdigest()
 
 class AuditService:
     """

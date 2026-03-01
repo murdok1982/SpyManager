@@ -11,6 +11,11 @@ from app.services.encryption_service import EncryptionService
 from app.services.audit_service import AuditService
 from typing import List, Optional
 
+import asyncio
+
+# Lock global para operaciones de escritura en la cadena de auditoría por instancia
+_audit_chain_lock = asyncio.Lock()
+
 class IntelRepository:
     """
     Repositorio Seguro para IntelPackages.
@@ -48,40 +53,42 @@ class IntelRepository:
             associated_data=package_data["case_id"]
         )
 
-        # 4. Obtener último hash y crear registro de auditoría
-        last_hash = await self._get_last_audit_hash()
-        audit_result = self.audit.create_entry(
-            user.user_id, "CREATE_INTEL", "NEW", "INTEL_INGESTION", "AUTH_DEVICE", last_hash
-        )
+        # Usar bloqueo para evitar race conditions al crear la entrada en la cadena inmutable
+        async with _audit_chain_lock:
+            # 4. Obtener último hash y crear registro de auditoría
+            last_hash = await self._get_last_audit_hash()
+            audit_result = self.audit.create_entry(
+                user.user_id, "CREATE_INTEL", "NEW", "INTEL_INGESTION", "AUTH_DEVICE", last_hash
+            )
 
-        # 5. Guardar en base de datos
-        new_package = IntelPackage(
-            id=package_data["id"],
-            case_id=package_data["case_id"],
-            classification_level=package_data["classification_level"],
-            source_profile_id=package_data["source_profile_id"],
-            confidence_score=package_data["confidence_score"],
-            content_encrypted=encrypted_content,
-            created_by=user.user_id,
-            access_log_reference=audit_result["integrity_hash"]
-        )
-        
-        self.db.add(new_package)
-        
-        # Guardar log de acceso (Parte de la cadena inmutable)
-        access_log = AccessLog(
-            user_id=user.user_id,
-            action="CREATE_INTEL",
-            resource_id=package_data["id"],
-            reason_code="INTEL_INGESTION",
-            device_id="AUTH_DEVICE",
-            integrity_hash=audit_result["integrity_hash"],
-            previous_hash=last_hash
-        )
-        self.db.add(access_log)
-        
-        await self.db.commit()
-        return new_package
+            # 5. Guardar en base de datos
+            new_package = IntelPackage(
+                id=package_data["id"],
+                case_id=package_data["case_id"],
+                classification_level=package_data["classification_level"],
+                source_profile_id=package_data["source_profile_id"],
+                confidence_score=package_data["confidence_score"],
+                content_encrypted=encrypted_content,
+                created_by=user.user_id,
+                access_log_reference=audit_result["integrity_hash"]
+            )
+            
+            self.db.add(new_package)
+            
+            # Guardar log de acceso (Parte de la cadena inmutable)
+            access_log = AccessLog(
+                user_id=user.user_id,
+                action="CREATE_INTEL",
+                resource_id=package_data["id"],
+                reason_code="INTEL_INGESTION",
+                device_id="AUTH_DEVICE",
+                integrity_hash=audit_result["integrity_hash"],
+                previous_hash=last_hash
+            )
+            self.db.add(access_log)
+            
+            await self.db.commit()
+            return new_package
 
     async def get_package(self, user: UserAttributes, package_id: str) -> Optional[dict]:
         stmt = select(IntelPackage).where(IntelPackage.id == package_id)

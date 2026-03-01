@@ -21,10 +21,14 @@ from app.api.wearable_api import router as wearable_router
 
 app = FastAPI(title="Intelligence Management Core (IMC)")
 
-# Configuración de Master Key segura
-MASTER_KEY_RAW = os.getenv("IMC_MASTER_KEY", "f" * 32)
-if len(MASTER_KEY_RAW) != 32:
-    MASTER_KEY_RAW = MASTER_KEY_RAW[:32].ljust(32, "0")
+# Configuración de Master Key segura y estricta
+MASTER_KEY_RAW = os.getenv("IMC_MASTER_KEY")
+if not MASTER_KEY_RAW or len(MASTER_KEY_RAW) != 32:
+    import secrets
+    import logging
+    logging.warning("CRITICAL: IMC_MASTER_KEY is not set or not 32 bytes! Using ephemeral secure key. Data will be unrecoverable across restarts.")
+    MASTER_KEY_RAW = secrets.token_hex(16) # 32 bytes hex string
+
 
 pki_manager = PKIManager()
 pki_manager.generate_ca()
@@ -83,8 +87,8 @@ async def ingest_intelligence(
         # Nota: Usamos db=None por el mock, en real se manejaría la transacción
         package = await repo.create_package(user, data.model_dump())
         
-        # 2. Indexación en IA local compartimentada
-        ai_service.ingest_intel(data.case_id, data.id, data.content)
+        # 2. Indexación en IA local compartimentada (ahora asíncrona)
+        await ai_service.ingest_intel(data.case_id, data.id, data.content)
         
         return {
             "status": "SECURE_INGESTED",
