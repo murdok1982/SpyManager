@@ -6,6 +6,7 @@ PROPIEDAD PRIVADA - USO RESTRINGIDO
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
+from pydantic import BaseModel, Field
 import structlog
 import structlog.stdlib
 from fastapi import FastAPI, Request
@@ -74,6 +75,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     await close_db()
     logger.info("imc_stopped")
+
+
+class KillSwitchBody(BaseModel):
+    target_id: str = Field(..., min_length=4, max_length=64, pattern=r"^[A-Za-z0-9\-_]+$")
+    reason: str = Field(..., min_length=4, max_length=256)
 
 
 def create_app() -> FastAPI:
@@ -158,17 +164,24 @@ def create_app() -> FastAPI:
     from app.database.session_manager import get_db
 
     @app.post("/api/v1/system/kill-switch", tags=["System"])
+    @limiter.limit("5/minute")
     async def trigger_emergency_kill(
-        target_id: str,
-        reason: str,
+        request: Request,
+        body: KillSwitchBody,
         user: UserAttributes = Depends(verify_pki_and_auth),
         db: AsyncSession = Depends(get_db),
     ) -> dict:
         """Activacion del Kill Switch. Solo ADMIN/DIRECTOR."""
         if user.role not in ("ADMIN", "DIRECTOR"):
             raise ABACDeniedError(user.user_id, "kill-switch", "trigger")
+        logger.warning(
+            "kill_switch_triggered",
+            operator=user.user_id,
+            target=body.target_id,
+            client_ip=request.client.host if request.client else "unknown",
+        )
         ks: KillSwitchService = app.state.kill_switch
-        return await ks.trigger_kill_switch(target_id, user.user_id, reason, db)
+        return await ks.trigger_kill_switch(body.target_id, user.user_id, body.reason, db)
 
     @app.get("/health", tags=["System"])
     def health_check() -> dict:

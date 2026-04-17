@@ -43,6 +43,12 @@ class PKIManager:
     # Revocation list con firma HMAC
     # ------------------------------------------------------------------
 
+    def _ca_key_passphrase(self) -> bytes:
+        """Deriva la passphrase para la CA key desde la master key."""
+        if not self._master_key:
+            raise PKIError("Master key required to protect CA private key")
+        return hashlib.sha256(self._master_key + b":imc-ca-key-v1").digest()
+
     def _sign_revocation_list(self, revoked: list) -> str:
         """Firma la lista de revocacion con HMAC-SHA256 usando la master key."""
         if not self._master_key:
@@ -132,7 +138,9 @@ class PKIManager:
                 private_key.private_bytes(
                     encoding=serialization.Encoding.PEM,
                     format=serialization.PrivateFormat.PKCS8,
-                    encryption_algorithm=serialization.NoEncryption(),
+                    encryption_algorithm=serialization.BestAvailableEncryption(
+                        self._ca_key_passphrase()
+                    ),
                 )
             )
 
@@ -164,7 +172,9 @@ class PKIManager:
 
         try:
             with open(self.ca_key_path, "rb") as f:
-                ca_private_key = serialization.load_pem_private_key(f.read(), password=None)
+                ca_private_key = serialization.load_pem_private_key(
+                    f.read(), password=self._ca_key_passphrase()
+                )
             with open(self.ca_cert_path, "rb") as f:
                 ca_cert = x509.load_pem_x509_certificate(f.read())
         except FileNotFoundError as exc:

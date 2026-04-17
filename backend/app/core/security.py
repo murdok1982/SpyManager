@@ -69,9 +69,8 @@ async def verify_pki_and_auth(
 
     # Lookup en base de datos
     if AsyncSessionLocal is None:
-        # Fallback para entorno de test sin DB inicializada
-        logger.warning("db_not_initialized_using_mock_profile", entity_id=entity_id)
-        return _build_mock_profile(entity_id)
+        logger.error("db_not_initialized_auth_rejected", entity_id=entity_id)
+        raise HTTPException(status_code=503, detail="SERVICE_UNAVAILABLE")
 
     async with AsyncSessionLocal() as session:
         profile = await _get_agent_profile(session, entity_id)

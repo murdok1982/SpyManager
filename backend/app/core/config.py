@@ -30,6 +30,8 @@ class Settings(BaseSettings):
             raise ValueError("IMC_MASTER_KEY debe ser hex valido") from exc
         if len(key_bytes) != 32:
             raise ValueError("IMC_MASTER_KEY debe ser 64 caracteres hex (32 bytes)")
+        if key_bytes == bytes(32):
+            raise ValueError("IMC_MASTER_KEY no puede ser la clave cero — generar con: python3 -c \"import secrets; print(secrets.token_hex(32))\"")
         return v
 
     @field_validator("database_url")
