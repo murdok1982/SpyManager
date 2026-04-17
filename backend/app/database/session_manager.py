@@ -1,41 +1,75 @@
 """
-🦅 Intelligence Management Core (IMC)
+Intelligence Management Core (IMC)
 Creador: [USUARIO] (@murdok1982)
 PROPIEDAD PRIVADA - USO RESTRINGIDO
 """
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_
-from app.database.models import IntelPackage
-from app.core.abac_engine import UserAttributes
+from typing import AsyncGenerator, Optional
 
-class CaseScopedSession:
-    """
-    Wrapper de sesión que asegura que todas las consultas de inteligencia
-    estén restringidas al compartimento autorizado del usuario.
-    """
-    
-    def __init__(self, db: AsyncSession, user: UserAttributes):
-        self.db = db
-        self.user = user
+import structlog
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
-    async def get_intel_by_case(self, case_id: str):
-        """
-        Consulta paquetes de inteligencia asegurando que el caso esté
-        dentro de los permitidos para el usuario (Compartimentación).
-        """
-        # Verificación redundante de seguridad (mecanismo de defensa en profundidad)
-        if case_id not in self.user.assigned_cases and self.user.role not in ["DIRECTOR", "ADMIN"]:
-            return []
+from app.core.exceptions import DatabaseError
 
-        stmt = select(IntelPackage).where(IntelPackage.case_id == case_id)
-        result = await self.db.execute(stmt)
-        return result.scalars().all()
+logger = structlog.get_logger(__name__)
 
-    async def secure_add(self, instance):
-        """Añade un objeto verificando que su case_id sea válido para el usuario."""
-        if hasattr(instance, "case_id"):
-            if instance.case_id not in self.user.assigned_cases and self.user.role not in ["DIRECTOR", "ADMIN"]:
-                raise PermissionError(f"Violación de compartimento: El usuario no tiene acceso al caso {instance.case_id}")
-        
-        self.db.add(instance)
-        await self.db.commit()
+engine: Optional[AsyncEngine] = None
+AsyncSessionLocal: Optional[async_sessionmaker[AsyncSession]] = None
+
+# Re-export Base for alembic env.py
+from app.database.models import Base  # noqa: E402, F401
+
+
+def init_db(settings) -> None:
+    """Inicializa el motor y la fabrica de sesiones. Llamar en lifespan."""
+    global engine, AsyncSessionLocal
+
+    engine = create_async_engine(
+        settings.database_url,
+        pool_size=20,
+        max_overflow=10,
+        pool_timeout=30,
+        pool_recycle=1800,
+        pool_pre_ping=True,
+        echo=(settings.environment == "development"),
+    )
+    AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
+    logger.info("database_initialized", url=_safe_url(settings.database_url))
+
+
+def _safe_url(url: str) -> str:
+    """Oculta credenciales de la URL para logging."""
+    try:
+        from urllib.parse import urlparse, urlunparse
+        parsed = urlparse(url)
+        safe = parsed._replace(netloc=f"***:***@{parsed.hostname}:{parsed.port}")
+        return urlunparse(safe)
+    except Exception:
+        return "***"
+
+
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    """Dependencia FastAPI que provee una sesion con commit/rollback automatico."""
+    if AsyncSessionLocal is None:
+        raise DatabaseError("Database not initialized — call init_db() in lifespan")
+
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+
+
+async def close_db() -> None:
+    """Cierra el motor al shutdown de la aplicacion."""
+    global engine
+    if engine is not None:
+        await engine.dispose()
+        logger.info("database_connection_closed")
+        engine = None

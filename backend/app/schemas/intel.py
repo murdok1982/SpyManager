@@ -1,5 +1,5 @@
 """
-🦅 Intelligence Management Core (IMC)
+Intelligence Management Core (IMC)
 Creador: [USUARIO] (@murdok1982)
 PROPIEDAD PRIVADA - USO RESTRINGIDO
 """

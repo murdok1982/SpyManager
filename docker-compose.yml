@@ -1,0 +1,102 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      DATABASE_URL: postgresql+asyncpg://imc:${DB_PASSWORD}@db:5432/imc_prod
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      IMC_MASTER_KEY: ${IMC_MASTER_KEY}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://imc.internal}
+      CERT_DIR: /app/certs
+      VECTOR_DB_PATH: /app/data/chroma
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+    volumes:
+      - certs_data:/app/certs:ro
+      - vector_data:/app/data/chroma
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - imc_internal
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: imc_prod
+      POSTGRES_USER: imc
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U imc -d imc_prod"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - imc_internal
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+
+  redis:
+    image: redis:7-alpine
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --save ""
+      --appendonly no
+    healthcheck:
+      test: ["CMD", "redis-cli", "--pass", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - imc_internal
+    restart: unless-stopped
+
+  migrate:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: alembic upgrade head
+    environment:
+      DATABASE_URL: postgresql+asyncpg://imc:${DB_PASSWORD}@db:5432/imc_prod
+      IMC_MASTER_KEY: ${IMC_MASTER_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - imc_internal
+    restart: "no"
+
+volumes:
+  pgdata:
+  certs_data:
+  vector_data:
+
+networks:
+  imc_internal:
+    driver: bridge
+    internal: true
