@@ -46,25 +46,25 @@ Construida desde sus cimientos bajo el paradigma de **Seguridad Zero Trust**, el
 
 ```mermaid
 mindmap
-  root((SpyManager<br/>IMC Core))
+  root((SpyManager IMC Core))
     Seguridad Zero Trust
-      PKI Automática Descentralizada
-      Control ABAC Dinámico
-      Auditoría Inmutable Blockchain
-      Aislamiento Estricto de Casos
-    Operatividad Táctica
-      Agentes de Campo Invisibles
+      PKI Descentralizada
+      Control ABAC
+      Auditoria Blockchain
+      Aislamiento de Casos
+    Operatividad Tactica
+      Agentes Invisibles
       Wearables Clandestinos
-      Kill Switch Remoto Cero Fallos
+      Kill Switch Remoto
       Comunicaciones Camufladas
     Inteligencia Artificial
       Motor IA Especializado
-      Indexación Vectorial Asíncrona
-      Descubrimiento de Patrones
-    Compartimentación N2K
-      Cifrado Militar AES-256-GCM
-      Roles Dinámicos y Expiración
-      Acceso Basado en Necesidad
+      Indexacion Vectorial
+      Descubrimiento Patrones
+    Compartimentacion N2K
+      Cifrado AES 256 GCM
+      Roles Dinamicos
+      Acceso por Necesidad
 ```
 
 ---
@@ -82,20 +82,20 @@ graph TD
     classDef ai fill:#312e81,stroke:#ec4899,stroke-width:2px,color:#fff
     classDef blockchain fill:#450a0a,stroke:#ef4444,stroke-width:2px,color:#fff
 
-    User((Operativo / Wearable)):::operativo
-    User -- "1. CSR + MFA Token" --> Gateway{API Gateway Securizado}:::gateway
+    User(("Operativo y Wearable")):::operativo
+    User -- "1. CSR + MFA Token" --> Gateway{"API Gateway Securizado"}:::gateway
     
-    Gateway -- "2. Análisis de Tráfico & Identidad" --> Interceptor[Interceptor Zero Trust]:::policy
+    Gateway -- "2. Análisis de Tráfico e Identidad" --> Interceptor["Interceptor Zero Trust"]:::policy
     
-    Interceptor -- "Riesgo Detectado (Kill Switch)" --> Ban((Aislamiento Red)):::blockchain
-    Interceptor -- "Identidad Aceptada" --> ABAC[Motor de Políticas ABAC]:::policy
+    Interceptor -- "Riesgo Detectado" --> Ban(("Aislamiento Red")):::blockchain
+    Interceptor -- "Identidad Aceptada" --> ABAC["Motor de Políticas ABAC"]:::policy
     
-    ABAC -- "3. Resolución Policy N2K" --> Vault[(Bóveda de Inteligencia\nAES-256-GCM)]:::storage
+    ABAC -- "3. Resolución Policy N2K" --> Vault[("Bóveda de Inteligencia N2K")]:::storage
     
-    Vault -. "4. Encoding Data" .-> AI[Unidad IA Táctica (Local)]:::ai
+    Vault -. "4. Encoding Data" .-> AI["Unidad IA Táctica Local"]:::ai
     AI -. "Vectores Analizados" .-> Vault
     
-    Vault -- "5. Sellado Criptográfico" --> Audit[Registro Blockchain\nSHA-256 Determinístico]:::blockchain
+    Vault -- "5. Sellado Criptográfico" --> Audit["Registro Blockchain SHA-256"]:::blockchain
 ```
 
 ---
@@ -113,20 +113,20 @@ sequenceDiagram
     participant IA
     participant Auditoria
 
-    Agente->>API: Intento de Acceso (Certificado X.509)
-    API->>ABAC: Validar Revocación + Token Contextual
-    ABAC-->>API: Dictamen de Políticas (Pass / Fail)
+    Agente->>API: Intento de Acceso (Cert X.509)
+    API->>ABAC: Validar Revocacion y Token
+    ABAC-->>API: Dictamen de Politicas
     
-    alt Infracción Detectada (Fail)
-        API--xAgente: Desconexión Fulminante
+    alt Infraccion Detectada
+        API--xAgente: Desconexion Fulminante
         API->>Auditoria: Registro Intento de Brecha
-    else Validación Exitosa (Pass)
-        API->>Boveda: Solicitud de Información (N2K)
-        Boveda-->>API: Carga Útil Cifrada (AES-256-GCM)
-        Boveda->>Auditoria: Sello SHA-256 de Acceso
-        Boveda-)+IA: Despacho Asíncrono de Índices
-        API-->>Agente: Sincronización Operativa Completa
-        IA--)-Boveda: Metadatos Enriquecidos
+    else Validacion Exitosa
+        API->>Boveda: Solicitud de Informacion
+        Boveda-->>API: Carga Cifrada AES 256
+        Boveda->>Auditoria: Sello SHA 256 de Acceso
+        Boveda->>+IA: Despacho Asincrono
+        API-->>Agente: Sincronizacion Operativa
+        IA-->>-Boveda: Metadatos Enriquecidos
     end
 ```
 
