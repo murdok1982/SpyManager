@@ -82,3 +82,68 @@ class KillSwitchService:
             "reason": reason,
             "audit_hash": audit_result["integrity_hash"],
         }
+
+    async def selective_wipe(
+        self,
+        db: AsyncSession,
+        wipe_type: str,
+        target_id: str,
+        operator_id: str,
+    ) -> dict:
+        """
+        Borrado selectivo: por caso, por credenciales, o por dispositivo.
+        Registra en auditoría y notifica al SIEM.
+        """
+        from app.database.models import Case, AgentProfile, MobileReport
+        import datetime
+
+        last_hash = await self.audit.get_last_hash(db)
+        wiped_items = []
+
+        if wipe_type == "case":
+            case = await db.get(Case, target_id)
+            if case:
+                case.deleted_at = datetime.datetime.utcnow()
+                wiped_items.append(f"case:{target_id}")
+        elif wipe_type == "credentials":
+            # Revocar certificados del agente
+            agent = await db.get(AgentProfile, target_id)
+            if agent:
+                self.pki.revoke_certificate(agent.entity_id)
+                wiped_items.append(f"credentials:{target_id}")
+        elif wipe_type == "device":
+            # Eliminar reportes móviles asociados
+            reports = await db.execute(
+                select(MobileReport).where(MobileReport.agent_id == target_id)
+            )
+            for report in reports.scalars():
+                report.status = "WIPED"
+            wiped_items.append(f"device_data:{target_id}")
+
+        # Auditoría
+        audit_result = self.audit.create_entry(
+            user_id=operator_id,
+            action="SELECTIVE_WIPE",
+            resource_id=target_id,
+            reason_code="SELECTIVE_WIPE",
+            device_id="CORE_CMD",
+            previous_hash=last_hash,
+        )
+
+        # SIEM
+        from app.services.siem_service import siem_service
+        await siem_service.send_log({
+            "action": "selective_wipe",
+            "type": wipe_type,
+            "target": target_id,
+            "operator": operator_id,
+            "wiped_items": wiped_items,
+            "timestamp": datetime.datetime.utcnow().isoformat(),
+        })
+
+        return {
+            "status": "WIPED",
+            "type": wipe_type,
+            "target": target_id,
+            "wiped_items": wiped_items,
+        }

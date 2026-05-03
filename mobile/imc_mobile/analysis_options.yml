@@ -1,0 +1,51 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  strong-mode:
+    implicit-casts: false
+    implicit-dynamic: false
+  errors:
+    unsafe_html: error
+    deprecated_member_use: warning
+    missing_required_param: error
+    must_be_immutable: error
+
+linter:
+  rules:
+    # Seguridad
+    - avoid_print: true
+    - avoid_web_libraries_in_flutter: true
+    - no_dynamic_calls: true
+    - prefer_const_constructors: true
+    - use_build_context_synchronously: true
+
+    # Estilo militar - código limpio
+    - camel_case_types: true
+    - file_names: true
+    - non_constant_identifier_names: true
+    - package_names: true
+    - prefer_relative_imports: true
+    - slash_for_doc_comments: true
+
+    # Rendimiento
+    - avoid_unnecessary_containers: true
+    - avoid_redundant_argument_values: true
+    - unnecessary_statements: true
+    - omit_local_variable_types: true
+
+    # Documentación
+    - public_member_api_docs: false  # No requerido para proyecto militar privado
+
+dart_code_metrics:
+  anti_patterns:
+    - long_method
+    - long_parameter_list
+  metrics:
+    - lines-of-code: 100
+    - maximum-nesting-level: 5
+    - number-of-parameters: 8
+  rules:
+    - avoid-border-all-side: true
+    - avoid-returning-widgets: true
+    - prefer-async-await: true
+    - prefer-bloc: true

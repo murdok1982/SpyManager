@@ -1,24 +1,48 @@
 import 'package:dio/dio.dart';
-import '../constants.dart';
-import 'interceptors.dart';
+import 'cert_pinner.dart';
 
+/// Pre-configured API client with certificate pinning and interceptors
 class ApiClient {
-  ApiClient._();
+  late final Dio _dio;
+  static final ApiClient _instance = ApiClient._internal();
 
-  static final ApiClient instance = ApiClient._();
+  factory ApiClient() => _instance;
 
-  late final Dio dio = Dio(
-    BaseOptions(
-      baseUrl: AppConstants.apiBaseUrl,
-      connectTimeout: AppConstants.connectTimeout,
-      receiveTimeout: AppConstants.receiveTimeout,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'X-Client': 'imc-mobile/1.0',
+  ApiClient._internal() {
+    _dio = Dio(BaseOptions(
+      baseUrl: 'https://spy-manager-secure.api',
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+    ));
+
+    // Apply certificate pinning
+    final certPinner = CertPinner(pinnedHashes: [
+      'YOUR_PRIMARY_SHA256_PIN_BASE64', // Replace with actual pinned hash
+      'YOUR_BACKUP_SHA256_PIN_BASE64',  // Backup pin for cert rotation
+    ]);
+    certPinner.configureDio(_dio);
+
+    // Add auth interceptor
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        // Attach auth token from secure storage
+        final token = await SecureEnclaveStorage().read(key: 'auth_token');
+        if (token != null) {
+          options.headers['Authorization'] = 'Bearer $token';
+        }
+        handler.next(options);
       },
-    ),
-  )
-    ..interceptors.add(AuthInterceptor())
-    ..interceptors.add(RetryInterceptor());
+      onError: (error, handler) {
+        // Handle token refresh or auth errors
+        handler.next(error);
+      },
+    ));
+
+    // Logging interceptor (disabled in release)
+    if (const bool.fromEnvironment('dart.vm.product') == false) {
+      _dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
+    }
+  }
+
+  Dio get dio => _dio;
 }

@@ -1,9 +1,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/storage/secure_storage.dart';
-import '../../../models/agent.dart';
+import '../../../core/security/secure_enclave_storage.dart';
 import '../../../services/imc_api_service.dart';
+import '../../../models/agent.dart';
 
 // Events
 abstract class AuthEvent extends Equatable {
@@ -15,6 +15,19 @@ abstract class AuthEvent extends Equatable {
 
 class AuthLoginRequested extends AuthEvent {
   const AuthLoginRequested({
+    required this.agentId,
+    required this.pin,
+  });
+
+  final String agentId;
+  final String pin;
+
+  @override
+  List<Object?> get props => [agentId, pin];
+}
+
+class AuthDuressPinEntered extends AuthEvent {
+  const AuthDuressPinEntered({
     required this.agentId,
     required this.pin,
   });
@@ -67,6 +80,15 @@ class AuthAuthenticated extends AuthState {
   List<Object?> get props => [agent];
 }
 
+class AuthDuressMode extends AuthState {
+  const AuthDuressMode({required this.agent});
+
+  final Agent agent;
+
+  @override
+  List<Object?> get props => [agent];
+}
+
 class AuthUnauthenticated extends AuthState {
   const AuthUnauthenticated();
 }
@@ -89,11 +111,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc() : super(const AuthInitial()) {
     on<AuthSessionChecked>(_onSessionChecked);
     on<AuthLoginRequested>(_onLoginRequested);
+    on<AuthDuressPinEntered>(_onDuressPinEntered);
     on<AuthLogoutRequested>(_onLogoutRequested);
     on<AuthAbortMission>(_onAbortMission);
   }
 
-  final SecureStorageService _storage = SecureStorageService.instance;
+  final SecureEnclaveStorage _storage = SecureEnclaveStorage.instance;
+  final IMCApiService _api = IMCApiService.instance;
 
   Future<void> _onSessionChecked(
     AuthSessionChecked event,
@@ -122,7 +146,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const AuthVerifyingCertificate());
 
     try {
-      final agent = await IMCApiService.instance.login(
+      final duressPin = await _storage.getDuressPin();
+      if (duressPin == event.pin) {
+        await _activateDuressMode(event.agentId, emit);
+        return;
+      }
+
+      final agent = await _api.login(
         event.agentId.toUpperCase(),
         event.pin,
       );
@@ -141,6 +171,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } catch (_) {
       emit(const AuthFailure(message: 'AUTHENTICATION FAILED — NETWORK ERROR'));
     }
+  }
+
+  Future<void> _onDuressPinEntered(
+    AuthDuressPinEntered event,
+    Emitter<AuthState> emit,
+  ) async {
+    await _activateDuressMode(event.agentId, emit);
+  }
+
+  Future<void> _activateDuressMode(String agentId, Emitter<AuthState> emit) async {
+    try {
+      await _api.sendDuressAlert(
+        agentId: agentId,
+        fakeDashboard: 'PERSONAL_NOTES',
+      );
+    } catch (_) {}
+
+    emit(AuthDuressMode(
+      agent: Agent.mock.copyWith(id: agentId, status: AgentStatus.underDuress),
+    ));
   }
 
   Future<void> _onLogoutRequested(

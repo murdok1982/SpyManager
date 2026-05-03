@@ -7,21 +7,40 @@ services:
       dockerfile: backend/Dockerfile
     environment:
       DATABASE_URL: postgresql+asyncpg://imc:${DB_PASSWORD}@db:5432/imc_prod
+      POSTGRES_REPLICA_URL: postgresql+asyncpg://imc:${DB_PASSWORD}@db-replica:5432/imc_prod
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
       IMC_MASTER_KEY: ${IMC_MASTER_KEY}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://imc.internal}
       CERT_DIR: /app/certs
       VECTOR_DB_PATH: /app/data/chroma
       ENVIRONMENT: ${ENVIRONMENT:-production}
+      SIEM_ENABLED: ${SIEM_ENABLED:-false}
+      SIEM_TYPE: ${SIEM_TYPE:-splunk}
+      SIEM_HEC_URL: ${SIEM_HEC_URL:-}
+      SIEM_HEC_TOKEN: ${SIEM_HEC_TOKEN:-}
+      SIEM_SYSLOG_HOST: ${SIEM_SYSLOG_HOST:-}
+      SIEM_SYSLOG_PORT: ${SIEM_SYSLOG_PORT:-514}
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:-spymanager}
+      HYPERLEDGER_ENABLED: ${HYPERLEDGER_ENABLED:-false}
+      STANAG_ENABLED: ${STANAG_ENABLED:-false}
+      AGENT_CHECKIN_THRESHOLD_HOURS: ${AGENT_CHECKIN_THRESHOLD_HOURS:-48}
     volumes:
       - certs_data:/app/certs:ro
       - vector_data:/app/data/chroma
+      - ./models:/app/models:ro
+      - ./backups:/app/backups
     ports:
       - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
+      db-replica:
+        condition: service_healthy
       redis:
+        condition: service_healthy
+      neo4j:
         condition: service_healthy
     networks:
       - imc_internal
@@ -30,7 +49,7 @@ services:
       resources:
         limits:
           cpus: "2"
-          memory: 2G
+          memory: 4G
         reservations:
           cpus: "0.5"
           memory: 512M
@@ -43,12 +62,39 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./backups/wal:/var/lib/postgresql/wal_archive
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U imc -d imc_prod"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 30s
+    networks:
+      - imc_internal
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+
+  db-replica:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: imc_prod
+      POSTGRES_USER: imc
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata_replica:/var/lib/postgresql/data
+    command: >
+      postgres
+      -c hot_standby=on
+      -c wal_level=replica
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U imc -d imc_prod"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - imc_internal
     restart: unless-stopped
@@ -76,6 +122,30 @@ services:
       - imc_internal
     restart: unless-stopped
 
+  neo4j:
+    image: neo4j:5.23.0
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-CHANGE_ME_STRONG_PASSWORD}
+      NEO4J_PLUGINS: '["apoc"]'
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "${NEO4J_PASSWORD:-CHANGE_ME_STRONG_PASSWORD}", "RETURN 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    # No exponer puertos al host - solo accesible via red interna
+    networks:
+      - imc_internal
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 2G
+
   migrate:
     build:
       context: .
@@ -91,10 +161,32 @@ services:
       - imc_internal
     restart: "no"
 
+  backup:
+    image: postgres:16-alpine
+    environment:
+      PGPASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./backups:/backups
+      - pgdata:/var/lib/postgresql/data:ro
+    command: >
+      sh -c "while true; do
+        sleep 3600;
+        pg_dump -h db -U imc imc_prod | gzip > /backups/imc_$$(date +%Y%m%d_%H%M%S).sql.gz;
+        find /backups -name '*.sql.gz' -mtime +7 -delete;
+      done"
+    depends_on:
+      - db
+    networks:
+      - imc_internal
+    restart: unless-stopped
+
 volumes:
   pgdata:
+  pgdata_replica:
   certs_data:
   vector_data:
+  neo4j_data:
+  neo4j_logs:
 
 networks:
   imc_internal:

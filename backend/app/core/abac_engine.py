@@ -8,6 +8,7 @@ from enum import IntEnum
 from pydantic import BaseModel
 from typing import List
 import structlog
+import datetime
 
 from app.core.exceptions import ABACDeniedError
 
@@ -140,6 +141,29 @@ class AccessContext:
         self.action = action
 
 
+class HoneypotPolicy(Policy):
+    """Detecta acceso a casos Honeypot y genera alerta silenciosa."""
+    name = "honeypot_check"
+
+    def evaluate(
+        self,
+        user: UserAttributes,
+        resource: ResourceAttributes,
+        action: str,
+    ) -> bool:
+        # Siempre permitir, pero registrar si es honeypot
+        if hasattr(resource, 'is_honeypot') and resource.is_honeypot:
+            from app.services.siem_service import siem_service
+            import asyncio
+            asyncio.create_task(siem_service.send_log({
+                "action": "honeypot_access",
+                "case_id": resource.resource_id,
+                "user_id": user.user_id,
+                "timestamp": datetime.datetime.utcnow().isoformat(),
+            }))
+        return True
+
+
 class ABACEngine:
     """
     Motor de Control de Acceso basado en Atributos (ABAC).
@@ -155,6 +179,7 @@ class ABACEngine:
                 CaseAssignmentPolicy(),
                 DeletePolicy(),
                 ExportPolicy(),
+                HoneypotPolicy(),
             ]
         else:
             self._policies = policies

@@ -1,0 +1,35 @@
+include: package:flutter_lints/flutter.yaml
+
+# Additional rules for state-military security requirements
+linter:
+  rules:
+    - avoid_print
+    - avoid_unnecessary_containers
+    - avoid_web_libraries_in_flutter
+    - prefer_const_constructors
+    - prefer_final_fields
+    - unnecessary_statements
+    - unused_import
+    - dead_code
+    - use_key_in_widget_constructors
+    - public_member_api_docs
+
+# Dart Code Metrics rules
+dart_code_metrics:
+  anti-patterns:
+    - long-method
+    - long-parameter-list
+  metrics:
+    - lines-of-code: 100
+    - maximum-nesting-level: 5
+    - number-of-methods: 10
+    - source-lines-of-code: 200
+  rules:
+    - avoid-catching-errors
+    - avoid-dynamic
+    - avoid-global-state
+    - avoid-magic-numbers
+    - avoid-unnecessary-type-assertions
+    - prefer-trailing-comma
+    - no-boolean-literal-compare
+    - no-empty-block

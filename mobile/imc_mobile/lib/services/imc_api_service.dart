@@ -95,6 +95,66 @@ class IMCApiService {
         'location': {'latitude': lat, 'longitude': lon},
     });
   }
+
+  Future<void> notifySecurityBreach({
+    required String agentId,
+    required List<String> threats,
+  }) async {
+    try {
+      await _dio.post('/security/breach', data: {
+        'agent_id': agentId,
+        'threats': threats,
+        'timestamp': DateTime.now().toUtc().toIso8601String(),
+        'device_type': 'mobile',
+      });
+    } on DioException {
+      // Silently fail - device may be compromised
+    }
+  }
+
+  Future<void> sendDuressAlert({
+    required String agentId,
+    required String fakeDashboard,
+  }) async {
+    try {
+      await _dio.post('/command/duress', data: {
+        'agent_id': agentId,
+        'timestamp': DateTime.now().toUtc().toIso8601String(),
+        'fake_dashboard': fakeDashboard,
+      });
+    } on DioException {
+      // Queue for later sync
+    }
+  }
+
+  Future<void> sendDeadManCheckIn({
+    required String agentId,
+  }) async {
+    try {
+      await _dio.post('/agent/checkin', data: {
+        'agent_id': agentId,
+        'timestamp': DateTime.now().toUtc().toIso8601String(),
+        'status': 'ALIVE',
+      });
+    } on DioException {
+      // Queue for later sync
+    }
+  }
+
+  Future<void> sendBehavioralMetrics({
+    required String agentId,
+    required Map<String, dynamic> metrics,
+  }) async {
+    try {
+      await _dio.post('/agent/biometrics', data: {
+        'agent_id': agentId,
+        'timestamp': DateTime.now().toUtc().toIso8601String(),
+        'metrics': metrics,
+      });
+    } on DioException {
+      // Queue for later sync
+    }
+  }
 }
 
 class _AgentIdInterceptor extends Interceptor {

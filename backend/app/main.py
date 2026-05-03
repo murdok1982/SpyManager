@@ -151,10 +151,20 @@ def create_app() -> FastAPI:
     from app.api.wearable_api import router as wearable_router
     from app.api.mobile_api import router as mobile_router
     from app.api.intel_api import router as intel_router
+    from app.api.steganography_api import router as steganography_router
+    from app.api.mesh_api import router as mesh_router
+    from app.api.threat_api import router as threat_router
+    from app.api.multimodal_api import router as multimodal_router
+    from app.api.integration_api import router as integration_router
 
     app.include_router(intel_router, prefix="/api/v1")
     app.include_router(wearable_router, prefix="/api/v1")
     app.include_router(mobile_router, prefix="/api/v1")
+    app.include_router(steganography_router, prefix="/api/v1")
+    app.include_router(mesh_router, prefix="/api/v1")
+    app.include_router(threat_router, prefix="/api/v1")
+    app.include_router(multimodal_router, prefix="/api/v1")
+    app.include_router(integration_router, prefix="/api/v1")
 
     # Kill switch endpoint (requiere ADMIN/DIRECTOR)
     from fastapi import Depends

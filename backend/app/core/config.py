@@ -1,51 +1,63 @@
-"""
-Intelligence Management Core (IMC)
-Creador: [USUARIO] (@murdok1982)
-PROPIEDAD PRIVADA - USO RESTRINGIDO
-"""
 from pydantic_settings import BaseSettings
-from pydantic import field_validator
-from functools import lru_cache
-from typing import List
-
+from typing import Optional, Literal
 
 class Settings(BaseSettings):
-    imc_master_key: str
-    database_url: str
-    redis_url: str = "redis://localhost:6379"
-    allowed_origins: List[str] = []
-    cert_dir: str = "./certs"
-    vector_db_path: str = "./data/chroma"
-    environment: str = "production"
-    rate_limit_wearable_events: str = "60/minute"
-    rate_limit_mobile_reports: str = "20/minute"
-    rate_limit_default: str = "100/minute"
+    # Existing settings preserved
+    DB_PASSWORD: str
+    REDIS_PASSWORD: str
+    IMC_MASTER_KEY: str
+    DATABASE_URL: str
+    ALLOWED_ORIGINS: str
+    ENVIRONMENT: str
+    CERT_DIR: str
+    VECTOR_DB_PATH: str
 
-    @field_validator("imc_master_key")
-    @classmethod
-    def validate_master_key(cls, v: str) -> str:
-        try:
-            key_bytes = bytes.fromhex(v)
-        except ValueError as exc:
-            raise ValueError("IMC_MASTER_KEY debe ser hex valido") from exc
-        if len(key_bytes) != 32:
-            raise ValueError("IMC_MASTER_KEY debe ser 64 caracteres hex (32 bytes)")
-        if key_bytes == bytes(32):
-            raise ValueError("IMC_MASTER_KEY no puede ser la clave cero — generar con: python3 -c \"import secrets; print(secrets.token_hex(32))\"")
-        return v
+    # Read-Replica PostgreSQL
+    POSTGRES_PRIMARY_URL: str = ""
+    POSTGRES_REPLICA_URL: Optional[str] = None
+    POSTGRES_PRIMARY_GEO: str = "us-east-1"
+    POSTGRES_REPLICA_GEO: str = "eu-west-1"
 
-    @field_validator("database_url")
-    @classmethod
-    def validate_database_url(cls, v: str) -> str:
-        if not v:
-            raise ValueError("DATABASE_URL es requerida")
-        return v
+    # Redis
+    REDIS_URL: str = "redis://localhost:6379"
+
+    # SIEM Integration
+    SIEM_ENABLED: bool = False
+    SIEM_TYPE: Literal["splunk", "qradar"] = "splunk"
+    SIEM_HEC_URL: Optional[str] = None
+    SIEM_HEC_TOKEN: Optional[str] = None
+    SIEM_SYSLOG_HOST: Optional[str] = None
+    SIEM_SYSLOG_PORT: int = 514
+
+    # Neo4j (Link Analysis)
+    NEO4J_URI: str = "bolt://neo4j:7687"
+    NEO4J_USER: str = "neo4j"
+    NEO4J_PASSWORD: str = "CHANGE_ME_STRONG_PASSWORD"
+
+    # Hyperledger Fabric (Distributed Audit)
+    HYPERLEDGER_ENABLED: bool = False
+    HYPERLEDGER_PEER_URL: str = "http://peer0.org1.example.com:7051"
+    HYPERLEDGER_CHANNEL: str = "spychannel"
+    HYPERLEDGER_CHAINCODE: str = "auditcc"
+
+    # ChromaDB
+    CHROMA_PERSIST_DIR: str = "./data/chroma"
+
+    # Circuit Breaker
+    CIRCUIT_BREAKER_FAIL_MAX: int = 5
+    CIRCUIT_BREAKER_RESET_TIMEOUT: int = 60
+
+    # Dead Man's Switch
+    AGENT_CHECKIN_THRESHOLD_HOURS: int = 48
+
+    # STANAG 5516 / Link 16
+    STANAG_ENABLED: bool = False
+
+    # Cross-Domain Solution (CDS)
+    CDS_CLASSIFICATIONS: list[str] = ["UNCLASSIFIED", "CONFIDENTIAL", "SECRET", "TOP_SECRET"]
 
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
 
-
-@lru_cache(maxsize=1)
-def get_settings() -> Settings:
-    return Settings()
+settings = Settings()

@@ -173,3 +173,54 @@ class MobileReport(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     agent = relationship("AgentProfile", back_populates="mobile_reports")
+
+
+class Case(Base):
+    __tablename__ = "cases"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid4()))
+    name = Column(String, nullable=False)
+    description = Column(String)
+    sensitivity_level = Column(Enum(ClassificationLevel), nullable=False)
+    is_honeypot = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+
+
+class BehavioralBiometrics(Base):
+    __tablename__ = "behavioral_biometrics"
+
+    id = Column(Integer, primary_key=True)
+    agent_id = Column(String, ForeignKey("agent_profiles.id"), index=True)
+    typing_speed = Column(Float)
+    usage_hour = Column(Integer)
+    location_variance = Column(Float)
+    tap_pressure_avg = Column(Float)
+    swipe_speed_avg = Column(Float)
+    timestamp = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class MeshMessage(Base):
+    __tablename__ = "mesh_messages"
+
+    id = Column(Integer, primary_key=True)
+    sender_node_id = Column(String, nullable=False)
+    recipient_agent_id = Column(String, ForeignKey("agent_profiles.id"), index=True)
+    payload = Column(Text, nullable=False)
+    timestamp = Column(DateTime(timezone=True), server_default=func.now())
+    status = Column(String, default="pending")
+
+
+class HUMINTSource(Base):
+    __tablename__ = "humint_sources"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True, nullable=False)
+    fuzzy_match_score = Column(Float)
+    duplicate_of_id = Column(Integer, ForeignKey("humint_sources.id"), nullable=True)
+    reliability_rating = Column(Integer)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+# AgentProfile se define arriba en el archivo (linea ~43)

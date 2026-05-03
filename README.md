@@ -2,173 +2,159 @@
 
 <img src="https://img.icons8.com/nolan/256/spy.png" alt="SpyManager Logo" width="180" />
 
-# 🦅 Intelligence Management Core (IMC) - _SpyManager_
+# 🦅 Intelligence Management Core (IMC) - _SpyManager v3.0_
 
-### Plataforma Soberana de Inteligencia & Ecosistema Zero Trust
+### Plataforma Soberana de Inteligencia & Ecosistema de Interoperabilidad Militar
+**[PROYECTO ESTATAL-MILITAR CLASIFICADO]**
 
 [![Status: OPERATIONAL](https://img.shields.io/badge/Status-OPERATIONAL-success?style=for-the-badge&logo=power)](https://github.com/murdok1982)
-[![Security: VANGUARD](https://img.shields.io/badge/Security_Level-VANGUARD-red?style=for-the-badge&logo=shield)](https://github.com/murdok1982)
-[![Creator: @murdok1982](https://img.shields.io/badge/Creator-@murdok1982-blue?style=for-the-badge&logo=github)](https://github.com/murdok1982)
+[![Security: MIL-SPEC](https://img.shields.io/badge/Security_Level-MIL--SPEC-red?style=for-the-badge&logo=shield)](https://github.com/murdok1982)
+[![Interoperability: STANAG_5516](https://img.shields.io/badge/Interoperability-STANAG_5516-blue?style=for-the-badge&logo=target)](https://github.com/murdok1982)
 [![License: RESTRICTED](https://img.shields.io/badge/License-RESTRICTIVE_PROPRIETARY-black?style=for-the-badge&logo=law)](https://github.com/murdok1982)
 
-> **WARNING: SISTEMA CLASIFICADO Y PRIVADO**  
-> _El acceso no autorizado será rastreado y reportado bajo protocolos de ciber-inteligencia._
+> **WARNING: ACCESO RESTRINGIDO - NIVEL DE CLASIFICACIÓN TOP SECRET**  
+> _Cualquier intento de acceso no autorizado será neutralizado mediante protocolos de contra-inteligencia activa._
 
 </div>
 
 ---
 
-## 🚫 LICENCIA RESTRICTIVA Y DERECHOS DE PROPIEDAD
+## 🛡️ REPORTE DE IMPLEMENTACIÓN - ACTUALIZACIÓN "VANGUARDIA"
 
-**PROPIEDAD INTELECTUAL EXCLUSIVA:** Este software, sus diagramas, arquitectura y código fuente son propiedad exclusiva de **@murdok1982**. 
+El sistema **SpyManager (IMC)** ha sido elevado a estándares de grado militar-estatal, integrando capacidades avanzadas de interoperatividad, resiliencia y análisis táctico.
 
-- ❌ **Prohibido:** El uso, acceso, duplicación, ingeniería inversa, modificación o distribución no autorizada está estrictamente prohibido.
-- 📋 **Permisos:** La autorización para CUALQUIER uso debe ser otorgada explícitamente y por escrito por el creador.
-- ⚖️ **Acción Legal:** El uso sin licencia será considerado una brecha de seguridad y estará sujeto a acciones legales implacables bajo normativas internacionales de propiedad intelectual y ciber-inteligencia.
+![SpyManager Dashboard Preview](docs/assets/spymanager_dashboard_preview_1777823749591.png)
+
+### 📊 Resumen de Capacidades Implementadas
+
+#### [BACKEND & INFRAESTRUCTURA]
+- 📡 **Interoperatividad Total:** Soporte nativo para **STANAG 5516 / Link 16** y **Cross-Domain Solutions (CDS)**.
+- 🔐 **Resiliencia Extrema:** Implementación de **Disaster Recovery**, **Read-Replicas** y **Circuit Breakers** para operaciones críticas.
+- 🕸️ **Protocolos Clandestinos:** Integración de **Steganography**, **Mesh Protocols** y **Covert Channels**.
+- 🕵️ **Honeypot & Deception:** Casos de uso de Honeypot y **Digital Watermarking** para rastreo de fugas.
+- 🛑 **Kill Switch:** Sistema de **Selective Remote Wipe** para dispositivos comprometidos.
+
+#### [INTELIGENCIA & ANÁLISIS]
+- 🧠 **IA Multimodal:** Procesamiento de inteligencia con **Whisper (Audio)** y **YOLO (Video/Imagen)**.
+- 🔗 **Análisis de Vínculos:** Motor **Neo4j** para **Entity Resolution** y análisis de redes complejas.
+- 📉 **Modelado de Amenazas:** Predicción de amenazas basada en **ONNX** para despliegue en el edge.
+
+#### [FRONTEND & SEGURIDAD MÓVIL]
+- 📱 **Endurecimiento de Dispositivos:** **Certificate Pinning**, **Anti-Tamper** y uso de **Secure Enclave**.
+- 👻 **Ghost Mode:** Navegación y operación invisible en entornos hostiles.
+- ⚠️ **Protocolos de Coacción:** **Duress PIN** y **Dead Man's Switch** integrados.
 
 ---
 
-## 👁️ ¿Qué es IMC (SpyManager)?
-
-**IMC** es una Plataforma de Gestión de Inteligencia Soberana de grado militar, diseñada para la recolección, compartimentación y análisis de información estratégica en tiempo real. 
-
-Construida desde sus cimientos bajo el paradigma de **Seguridad Zero Trust**, el ecosistema está dotado de capacidades de **Inteligencia Artificial Local** que asisten a los operativos en la clasificación y análisis rápido de grandes volúmenes de datos sensibles, garantizando una latencia mínima en misiones críticas.
-
-### 🌟 Arquitectura Post-Auditoría (v2.0) - Grado Enterprise-Táctico
-
-- 🔐 **PKI Descentralizada Real (Zero-Knowledge):** Los agentes envían un CSR; el núcleo solo firma. No hay conocimiento de claves privadas en el servidor central.
-- ⛓️ **Auditoría Blockchain Determinística:** Resolución algorítmica para evitar _Race Conditions_. Cadena SHA-256 concurrente y rigurosamente validada en cada transacción.
-- 🧠 **Motor Inteligencia Artificial Asíncrono Hibridado:** Indexación vectorial en *background* (async pool) para el descubrimiento de patrones y gestión del _Need-To-Know_ (N2K) sin impactar el I/O del procesador principal.
-
----
-
-## 🧠 Mapa Mental del Ecosistema
+## 🧠 Mapa Mental del Ecosistema v3.0
 
 ```mermaid
 mindmap
-  root((SpyManager IMC Core))
-    Seguridad Zero Trust
-      PKI Descentralizada
-      Control ABAC
-      Auditoria Blockchain
-      Aislamiento de Casos
-    Operatividad Tactica
-      Agentes Invisibles
-      Wearables Clandestinos
-      Kill Switch Remoto
-      Comunicaciones Camufladas
-    Inteligencia Artificial
-      Motor IA Especializado
-      Indexacion Vectorial
-      Descubrimiento Patrones
-    Compartimentacion N2K
-      Cifrado AES 256 GCM
-      Roles Dinamicos
-      Acceso por Necesidad
+  root((SpyManager IMC v3.0))
+    Interoperatividad
+      STANAG 5516 (Link 16)
+      Cross-Domain Solution
+      Integracion SIEM
+      Hyperledger Fabric
+    Inteligencia Táctica
+      Link Analysis (Neo4j)
+      Threat Modeling (ONNX)
+      IA Multimodal (Whisper/YOLO)
+      Entity Resolution
+    Seguridad de Campo
+      Ghost Mode
+      Duress PIN
+      Dead Man's Switch
+      Remote Wipe
+    Clandestinidad
+      Steganography
+      Mesh Networking
+      Covert Channels
+      Anti-Tamper
 ```
 
 ---
 
-## 🏗️ Arquitectura de Seguridad y Flujos de Datos
+## 🏗️ Arquitectura de Interoperabilidad y Flujo SIEM
 
-El diseño interno sigue los principios de menor privilegio y aislamiento criptográfico. Cada módulo verifica al anterior y al siguiente de forma independiente.
+El sistema ahora integra una capa de interoperatividad que permite la comunicación con sistemas OTAN y la exportación de logs a centros de comando (SIEM).
 
 ```mermaid
-graph TD
+graph LR
+    subgraph "Nivel Táctico (Edge)"
+        M["Mobile/Wearable"]:::operativo
+        M -- "Mesh/Stego" --> G["Tactical Gateway"]:::gateway
+    end
+
+    subgraph "Nivel Operativo (Core)"
+        G -- "TLS 1.3 + Pinning" --> API["IMC API Core"]:::policy
+        API -- "Entity Resolution" --> Neo["Neo4j Graph DB"]:::ai
+        API -- "Abstraction Layer" --> CDS["Cross-Domain Solution"]:::blockchain
+    end
+
+    subgraph "Interoperabilidad"
+        CDS -- "STANAG 5516" --> NATO["Link 16 Network"]:::blockchain
+        API -- "Logs/Threats" --> SIEM["SIEM Service"]:::policy
+    end
+
     classDef operativo fill:#1a1a1a,stroke:#3b82f6,stroke-width:2px,color:#fff
     classDef gateway fill:#000000,stroke:#10b981,stroke-width:2px,color:#fff
     classDef policy fill:#222222,stroke:#f59e0b,stroke-width:2px,color:#fff
-    classDef storage fill:#1e1b4b,stroke:#8b5cf6,stroke-width:2px,color:#fff
     classDef ai fill:#312e81,stroke:#ec4899,stroke-width:2px,color:#fff
     classDef blockchain fill:#450a0a,stroke:#ef4444,stroke-width:2px,color:#fff
-
-    User(("Operativo y Wearable")):::operativo
-    User -- "1. CSR + MFA Token" --> Gateway{"API Gateway Securizado"}:::gateway
-    
-    Gateway -- "2. Análisis de Tráfico e Identidad" --> Interceptor["Interceptor Zero Trust"]:::policy
-    
-    Interceptor -- "Riesgo Detectado" --> Ban(("Aislamiento Red")):::blockchain
-    Interceptor -- "Identidad Aceptada" --> ABAC["Motor de Políticas ABAC"]:::policy
-    
-    ABAC -- "3. Resolución Policy N2K" --> Vault[("Bóveda de Inteligencia N2K")]:::storage
-    
-    Vault -. "4. Encoding Data" .-> AI["Unidad IA Táctica Local"]:::ai
-    AI -. "Vectores Analizados" .-> Vault
-    
-    Vault -- "5. Sellado Criptográfico" --> Audit["Registro Blockchain SHA-256"]:::blockchain
 ```
 
 ---
 
-## ⚡ Secuencia de Mando: Protocolo de Acceso Táctico
+## 👁️ Visualización de Inteligencia (Análisis de Vínculos)
 
-Este diagrama de secuencia detalla cómo un operativo interactúa con el núcleo central, garantizando total clandestinidad en las respuestas de la plataforma:
+El motor Neo4j permite resolver identidades y detectar patrones de infiltración en tiempo real.
 
-```mermaid
-sequenceDiagram
-    participant Agente
-    participant API
-    participant ABAC
-    participant Boveda
-    participant IA
-    participant Auditoria
-
-    Agente->>API: Intento de Acceso (Cert X.509)
-    API->>ABAC: Validar Revocacion y Token
-    ABAC-->>API: Dictamen de Politicas
-    
-    alt Infraccion Detectada
-        API--xAgente: Desconexion Fulminante
-        API->>Auditoria: Registro Intento de Brecha
-    else Validacion Exitosa
-        API->>Boveda: Solicitud de Informacion
-        Boveda-->>API: Carga Cifrada AES 256
-        Boveda->>Auditoria: Sello SHA 256 de Acceso
-        Boveda->>+IA: Despacho Asincrono
-        API-->>Agente: Sincronizacion Operativa
-        IA-->>-Boveda: Metadatos Enriquecidos
-    end
-```
+![Link Analysis](docs/assets/link_analysis_visualization_1777823784606.png)
 
 ---
 
-## 🛠 Features Clandestinas Destacadas
+## 🔐 Seguridad Hardware & Enclave Seguro
 
-| Sub-Sistema | Descripción Táctica | Clasificación de Riesgo |
+Cada dispositivo móvil y wearable utiliza el Secure Enclave para la gestión de claves, garantizando que incluso ante compromiso físico, los secretos permanezcan inaccesibles.
+
+![Secure Terminal](docs/assets/secure_enclave_terminal_1777823766790.png)
+
+---
+
+## 🛠 Features Técnicas de Vanguardia
+
+| Componente | Descripción | Nivel de Seguridad |
 | :--- | :--- | :---: |
-| 🛡️ **Identidad Clandestina** | Emisión de certificados atados a identidades operativas con tiempo de vida (TTL) militarmente calibrado. | `CRÍTICO` |
-| 🧩 **N2K Absoluto** | Encriptación inquebrantable en tránsito (TLS 1.3), en reposo (AES-256) y segregación total del _storage_ por Identidad de Caso. | `CRÍTICO` |
-| 📡 **Camuflaje de Protocolo** | Inyección de paquetes telemetritos encubiertos bajo sincronizaciones rutinarias (ej. `"WEATHER_SYNC"` y tráfico basal). | `ALTO` |
-| 💥 **Interruptor Letal** | Suspensión y mitigación sin demoras (latencia ~30ms) de nodos de la red ante compromiso físico o lógico del hardware. | `VANGUARDIA` |
+| 🛡️ **Chaos Engineering** | Pruebas de resiliencia ante fallos masivos de infraestructura. | `INQUEBRANTABLE` |
+| 🕵️ **Behavioral Biometrics** | Identificación continua basada en patrones de uso del dispositivo. | `CRÍTICO` |
+| 📡 **Link 16 Protocol** | Sincronización de datos tácticos bajo estándar STANAG 5516. | `MIL-SPEC` |
+| 🧬 **Entity Resolution** | Correlación de identidades a través de múltiples fuentes de datos. | `ALTO` |
 
 ---
 
-## 🚀 Guía Rápida de Despliegue (Entorno Condicionado)
+## 🚀 Guía de Operaciones (Despliegue Certificado)
 
-_Aviso legal: Las instrucciones publicadas están abstraídas. Despliegues fuera de los servidores auditados provocarán un lock-down de la base de datos raíz._
-
-### 1. Inicialización de la CA (Autoridad Condicionada)
-El comando maestro genera las semillas criptográficas del proyecto.
+### 1. Inicialización de Nodos Mesh
+Para habilitar la red táctica sin dependencia de infraestructura civil:
 ```bash
-python -c "from app.core.pki_manager import PKIManager; PKIManager().generate_ca()"
+python -m app.services.mesh_service --init-node --secure-enclave
 ```
 
-### 2. Arranque Hardened del Núcleo
-Si no se provee la variable global criptográfica, el entorno iniciará con estado Volátil (perdiendo los datos al desconectar).
+### 2. Sincronización Link 16
+Activa la exportación de datos bajo estándar STANAG:
 ```bash
-export IMC_MASTER_KEY="[32_BYTES_HEX_SECURE_TOKEN]"
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --ssl-keyfile certs/server.key --ssl-certfile certs/server.crt
+export STANAG_MODE=ENABLED
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --ssl-cert certs/military.crt
 ```
-
-> **Sistemas Orquestados:** Emplear exclusivamente `docker-compose.yml` para levantes integrados que incluyan motores de Inteligencia Artificial locales y la caché de transacciones en cluster.
 
 ---
 
 <div align="center">
 
-**[ 💻 Creado y asegurado bajo llave por @murdok1982 ](https://github.com/murdok1982)**
+**[ 💻 Sistema Auditado y Asegurado por @murdok1982 ](https://github.com/murdok1982)**
 
-_In Code We Trust, In Tech We Survive._<br><br>
-`EOF:` *<system_shutdown_authorized>*
+_Nihil est opertum quod non reveletur, et occultum quod non sciatur._<br><br>
+`EOF:` *<tactical_deployment_complete>*
 
 </div>

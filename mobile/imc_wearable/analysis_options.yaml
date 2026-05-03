@@ -1,0 +1,19 @@
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    - avoid_print
+    - prefer_const_constructors
+    - prefer_final_fields
+    - unused_import
+    - dead_code
+    - use_key_in_widget_constructors
+
+dart_code_metrics:
+  metrics:
+    - lines-of-code: 80
+    - maximum-nesting-level: 4
+  rules:
+    - avoid-dynamic
+    - avoid-global-state
+    - prefer-trailing-comma
