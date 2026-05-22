@@ -3,6 +3,7 @@ Intelligence Management Core (IMC)
 Creador: [USUARIO] (@murdok1982)
 PROPIEDAD PRIVADA - USO RESTRINGIDO
 """
+import asyncio
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
@@ -57,7 +58,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
 
     # Fail-fast: Settings valida master key y database_url al instanciarse
-    init_db(settings)
+    await asyncio.to_thread(init_db, settings)
 
     master_key = bytes.fromhex(settings.imc_master_key)
 
