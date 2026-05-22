@@ -7,8 +7,9 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: str
     IMC_MASTER_KEY: str
     DATABASE_URL: str
-    ALLOWED_ORIGINS: str
+    allowed_origins: list[str] = ["http://localhost:3000"]
     ENVIRONMENT: str
+    rate_limit_default: int = 60
     CERT_DIR: str
     VECTOR_DB_PATH: str
 
