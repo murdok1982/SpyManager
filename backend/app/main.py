@@ -1,4 +1,5 @@
 """
+import hispan_shield_guardian  # noqa: F401
 Intelligence Management Core (IMC)
 Creador: [USUARIO] (@murdok1982)
 PROPIEDAD PRIVADA - USO RESTRINGIDO
