@@ -1,15 +1,39 @@
-PROPRIETARY AND RESTRICTED LICENSE
+HISPANSHIELD NON-COMMERCIAL LICENSE
+Version 1.0, May 2026
 
-Copyright (c) 2026 @murdok1982. All rights reserved.
+Copyright (c) 2026 Gustavo Lobato Clara (General Murdok)
+HispanShield â€” LegiÃ³n de Ciberdefensa
 
-This software, its source code, documentation, architectures, and any affiliated material are the sole, exclusive intellectual property of the author (@murdok1982).
+TERMS AND CONDITIONS
 
-RESTRICTIONS AND PROHIBITIONS:
-1. UNAUTHORIZED USE IS STRICTLY FORBIDDEN. You may not run, compile, deploy, or use this software without express written permission from the author.
-2. NO COPYING OR DISTRIBUTION. You may not copy, reproduce, distribute, or share this software or any part of it, publicly or privately.
-3. NO MODIFICATIONS. You may not modify, adapt, or create derivative works from this software.
-4. NO REVERSE ENGINEERING. You may not decompile, reverse-engineer, disassemble, or attempt to extract the source code or cryptographic keys.
+1. DEFINITIONS
+   "Software" means any source code, binaries, documentation, and associated files in this repository.
+   "Personal Use" means use by an individual for non-commercial, educational, or evaluation purposes.
+   "Commercial Use" means any use, reproduction, distribution, modification, or exploitation of the Software that is intended for or results in commercial advantage, monetary compensation, or business operations.
 
-UNLICENSED ACCESS OR USE OF THIS SYSTEM WILL BE TREATED AS A CYBERSECURITY BREACH AND THEFT OF INTELLECTUAL PROPERTY. VIOLATORS ARE SUBJECT TO LEGAL ACTION UNDER INTERNATIONAL LAWS GOVERNING COPYRIGHT, CYBERCRIME, AND DIGITAL ESPIONAGE.
+2. GRANT OF LICENSE
+   The Software is made available for PERSONAL, EDUCATIONAL, AND EVALUATION PURPOSES ONLY.
+   You may use, copy, modify, and distribute the Software for non-commercial purposes, provided that this license notice is included in all copies or substantial portions.
 
-Permission for any use case, evaluation, or auditing must be granted explicitly and formally in writing by the creator.
+3. PROHIBITED COMMERCIAL USE
+   Any Commercial Use of the Software is STRICTLY PROHIBITED without prior written consent and payment of a commercial license fee.
+   Commercial Use includes but is not limited to:
+   a) Selling, renting, or leasing the Software or derivatives thereof.
+   b) Using the Software in a commercial product or service.
+   c) Using the Software within a company, organization, or government entity for business operations.
+   d) Providing consulting, training, or services based on the Software for a fee.
+   e) Integrating the Software into a system that generates revenue.
+
+4. COMMERCIAL LICENSE
+   To obtain a commercial license, contact: gustavolobatoclara@gmail.com
+   A commercial fee must be paid as agreed in writing between both parties.
+   Unauthorized commercial use will be pursued to the fullest extent of the law.
+
+5. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+6. LIMITATION OF LIABILITY
+   IN NO EVENT SHALL THE AUTHOR OR COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+7. GOVERNING LAW
+   This license shall be governed by and construed in accordance with the laws of Spain.
